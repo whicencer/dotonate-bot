@@ -1,0 +1,4 @@
+devBot.js
+/node_modules/
+.vercel
+.env
