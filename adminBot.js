@@ -26,7 +26,8 @@ bot.onText(/Get all users started Dotonate with landing/, (msg) => {
   const chatId = msg.chat.id;
 
   if (chatId == ADMIN_CHAT_ID) {
-    bot.sendDocument(chatId, "landing_users.json");
+    const buffer = fs.readFileSync("landing_users.json");
+    bot.sendDocument(chatId, buffer);
   }
 
   return;
