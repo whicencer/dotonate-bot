@@ -44,12 +44,16 @@ bot.onText(/\/start(?: (.+))?/, (msg, match) => {
     }
   }
 
-  bot.sendMessage(chatId, "Hello, this is Dotonate bot!", {
+  bot.sendMessage(chatId, "Hello, this is Dotonate bot!\nSubscribe to our channel @dotonatenews", {
     reply_markup: {
       inline_keyboard: [
         [{ text: "Let's get started", web_app: { url: 'https://dotonate.vercel.app/' } }]
       ]
     }
+  });
+  
+  bot.sendMessage(chatId, "If you need help, please contact @dotonate\nWe speak <b>English</b>, <b>Ukrainian</b> and <b>Russian</b>", {
+    parse_mode: "HTML"
   });
 });
 
