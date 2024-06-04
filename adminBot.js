@@ -26,11 +26,12 @@ bot.onText(/Get all users started Dotonate with landing/, (msg) => {
   const chatId = msg.chat.id;
 
   if (chatId == ADMIN_CHAT_ID) {
-    const buffer = fs.readFileSync("landing_users.json");
-    bot.sendDocument(chatId, buffer);
+    bot.sendDocument(chatId, "landing_users.json");
   }
 
   return;
 });
+
+bot.on("polling_error", (msg) => console.log(msg));
 
 bot.startPolling();
