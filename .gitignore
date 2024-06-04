@@ -2,3 +2,4 @@ devBot.js
 /node_modules/
 .vercel
 .env
+landing_users.json
