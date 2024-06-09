@@ -51,10 +51,6 @@ bot.onText(/\/start(?: (.+))?/, (msg, match) => {
       ]
     }
   });
-  
-  bot.sendMessage(chatId, "If you need help, please contact @dotonate\nWe speak <b>English</b>, <b>Ukrainian</b> and <b>Russian</b>", {
-    parse_mode: "HTML"
-  });
 });
 
 bot.startPolling();
