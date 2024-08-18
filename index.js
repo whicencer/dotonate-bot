@@ -1,56 +1,71 @@
 require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
-const fs = require("fs");
+const {
+  getUsersStatistics,
+  getDonationsStatistics
+} = require("./statistics");
+const db = require("./db");
 
-const TOKEN = process.env.BOT_TOKEN;
+const TOKEN = process.env.DEV_BOT_TOKEN;
 
 const bot = new TelegramBot(TOKEN);
 
-const landingFile = 'landing_users.json';
-
-// Функция для добавления пользователя в файл
-function addUserToLanding(user) {
-  let data = [];
-  try {
-    // Чтение существующего файла
-    if (fs.existsSync(landingFile)) {
-      const fileData = fs.readFileSync(landingFile, 'utf8');
-      data = JSON.parse(fileData);
-    }
-
-    const newUser = {
-      id: user.id,
-      name: `${user.first_name || ''} ${user.last_name || ''}`,
-      telegramId: user.id,
-      date: new Date()
-    };
-
-    data.push(newUser);
-
-    // Сохранение обновленных данных в файл
-    fs.writeFileSync(landingFile, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error('Error handling landing file:', error);
-  }
-}
-
-bot.onText(/\/start(?: (.+))?/, (msg, match) => {
+bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  const parameter = match[1]; // Дополнительный параметр
+  const params = msg.text.split(' ')[1];
+  const viaLanding = params === "landing";
 
-  if (parameter) {
-    if (parameter === "landing") {
-      addUserToLanding(msg.from);
-    }
-  }
+  db.addUser({
+    username: msg.from.username,
+    userId: msg.from.id,
+    isPremium: msg.from.is_premium,
+    viaLanding
+  })
 
   bot.sendMessage(chatId, "Hello, this is Dotonate bot!\nSubscribe to our channel @dotonatenews", {
     reply_markup: {
       inline_keyboard: [
-        [{ text: "Let's get started", web_app: { url: 'https://dotonate.vercel.app/' } }]
+        [{ text: "Let's get started", web_app: { url: process.env.DOTONATE_URL } }]
       ]
     }
   });
 });
 
+bot.onText(/\/stat/, async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  if (userId !== process.env.ADMIN_CHAT_ID) {
+    return bot.sendMessage(chatId, "🚫 This command is not for you :(");
+  }
+
+  const { 
+    usersADay,
+    usersAMonth,
+    usersAWeek,
+    usersLength,
+    usersWithPremium,
+    usersWithLanding
+  } = await getUsersStatistics();
+  const { donationsCount, donationsCountADay } = await getDonationsStatistics();
+
+  const stat = `☑️ <b>Статистика:</b>  
+├ 🌎 <b>Пользователей:</b> ${usersLength}
+├ 📅 <b>За эту неделю:</b> ${usersAWeek}
+├ 📆 <b>За этот месяц:</b> ${usersAMonth}
+├ 📈 <b>За сегодня:</b> ${usersADay}
+├ 🚀 <b>С лендинга:</b> ${usersWithLanding}
+└ 🌟 <b>Пользователи с премиумом:</b> ${usersWithPremium}
+
+💸 <b>Информация о пожертвованиях:</b>
+├ 📊 <b>Всего:</b> ${donationsCount}
+└ 📈 <b>За сегодня:</b> ${donationsCountADay}
+`;
+
+  bot.sendMessage(chatId, stat, {
+    parse_mode: "HTML"
+  });
+});
+
+bot.on("polling_error", console.log);
 bot.startPolling();
