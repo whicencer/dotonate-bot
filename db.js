@@ -117,6 +117,18 @@ class Database {
     });
   }
 
+  getAllUsers() {
+    return new Promise((resolve, reject) => {
+      this.db.all("SELECT * FROM users", [], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
   close() {
     this.db.close();
   }

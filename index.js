@@ -5,6 +5,7 @@ const {
   getDonationsStatistics
 } = require("./statistics");
 const db = require("./db");
+const { exportUsersToCSV } = require("./exportUsersToCSV");
 
 const TOKEN = process.env.DEV_BOT_TOKEN;
 
@@ -28,6 +29,20 @@ bot.onText(/\/start/, (msg) => {
         [{ text: "Let's get started", web_app: { url: process.env.DOTONATE_URL } }]
       ]
     }
+  });
+});
+
+bot.onText(/\/export_users/, async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  if (userId !== 915471265) {
+    return bot.sendMessage(chatId, "🚫 This command is not for you :(");
+  }
+
+  await exportUsersToCSV();
+  await bot.sendDocument(chatId, './users.csv', {
+    caption: 'Список всех пользователей'
   });
 });
 

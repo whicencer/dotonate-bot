@@ -13,6 +13,7 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "grammy": "^1.27.0",
+    "json2csv": "^6.0.0-alpha.2",
     "node-telegram-bot-api": "^0.66.0",
     "pg": "^8.12.0",
     "sqlite3": "^5.1.7"
