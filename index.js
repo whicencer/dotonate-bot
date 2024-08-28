@@ -2,12 +2,11 @@ require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
 const {
   getUsersStatistics,
-  getDonationsStatistics
 } = require("./statistics");
 const db = require("./db");
 const { exportUsersToCSV } = require("./exportUsersToCSV");
 
-const TOKEN = process.env.DEV_BOT_TOKEN;
+const TOKEN = process.env.BOT_TOKEN;
 
 const bot = new TelegramBot(TOKEN);
 
@@ -50,7 +49,7 @@ bot.onText(/\/stat/, async (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
 
-  if (userId !== process.env.ADMIN_CHAT_ID) {
+  if (userId !== 915471265) {
     return bot.sendMessage(chatId, "🚫 This command is not for you :(");
   }
 
@@ -60,9 +59,8 @@ bot.onText(/\/stat/, async (msg) => {
     usersAWeek,
     usersLength,
     usersWithPremium,
-    usersWithLanding
+    usersWithLanding,
   } = await getUsersStatistics();
-  const { donationsCount, donationsCountADay } = await getDonationsStatistics();
 
   const stat = `☑️ <b>Статистика:</b>  
 ├ 🌎 <b>Пользователей:</b> ${usersLength}
@@ -71,10 +69,6 @@ bot.onText(/\/stat/, async (msg) => {
 ├ 📈 <b>За сегодня:</b> ${usersADay}
 ├ 🚀 <b>С лендинга:</b> ${usersWithLanding}
 └ 🌟 <b>Пользователи с премиумом:</b> ${usersWithPremium}
-
-💸 <b>Информация о пожертвованиях:</b>
-├ 📊 <b>Всего:</b> ${donationsCount}
-└ 📈 <b>За сегодня:</b> ${donationsCountADay}
 `;
 
   bot.sendMessage(chatId, stat, {
